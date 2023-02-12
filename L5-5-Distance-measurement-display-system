@@ -1,0 +1,97 @@
+#include &lt;SPI.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SH110X.h&gt;
+
+const int trigPin = 5;
+const int echoPin = 18;
+
+//define sound speed in cm/us
+#define SOUND_SPEED 0.034 //ค่าคงที่ที่เดินทางในอากาศ
+#define CM_TO_INCH 0.393701 //ค่าคงที่แปลง cm เป็น inch
+
+long duration;
+float distanceCm;
+float distanceInch;
+unsigned long timer = 5000; // 5s
+unsigned long prevtime = 0;
+unsigned long currtime = 0;
+
+/* Uncomment the initialize the I2C address , uncomment only one, If you get a
+totally blank screen try the other*/
+#define i2c_Address 0x3c //initialize with the I2C addr 0x3C Typically eBay
+OLED&#39;s
+
+//#define i2c_Address 0x3d //initialize with the I2C addr 0x3D Typically
+Adafruit OLED&#39;s
+#define SCREEN_WIDTH 128    // OLED display width, in pixels (define
+ไม่สนใจชนิดตัวแปร)
+#define SCREEN_HEIGHT 64    // OLED display height, in pixels
+#define OLED_RESET -1   //   QT-PY / XIAO
+
+Adafruit_SH1106G oled = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire,
+OLED_RESET);
+// or int SCREEN_WIDTH 128;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  Serial.println(&quot;Hello, HC-SRO4!&quot;);
+  pinMode(trigPin, OUTPUT); // Sets the trigpin as an Output ขาส่ง
+  pinMode(echoPin, INPUT); // Sets the echopin as an Input ขารับ
+  // initialize OLED display with address 0x3C for 128x64 ทดสอบการติดต่อ oled
+  if (!oled.begin(i2c_Address, true)) {
+    Serial.println(F(&quot;SH1106G allocation failed&quot;));
+    while (true);
+    delay(2000);          // wait for initializing          
+  }
+  
+  oled.clearDisplay();      // clear display เคลียรหน้าจอ
+  oled.setTextSize(1);      // text size เซตขนาดตัวอักษร
+  oled.setTextColor(SH110X_WHITE); // text color สีขาว
+  oled.setCursor(0, 10);    // position to display ตำแน่งแสดงข้อความ x,y line 0
+,10pixel
+  oled.println(&quot;Hello OLED!&quot;); // text to display
+  oled.display();           // show on OLED
+}
+void loop() {
+  // put your main code here, to run repeatedly:
+  delay(500);
+  currtime = millis(); // start 0s
+  if(currtime - prevtime &gt;= timer){
+   
+  // Clears the trigpin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigpin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echopin, returns the sound wave travel time in i
+  duration = pulseIn(echoPin, HIGH);
+  // Calculate the distance
+  distanceCm = duration * SOUND_SPEED/2;
+  // Convert to inches
+  distanceInch = distanceCm * CM_TO_INCH;
+     
+  // Prints the distance in the Serial Monitor
+  oled.clearDisplay();
+  oled.setTextSize(1);
+  oled.setTextColor(SH110X_WHITE);
+  oled.setCursor(0, 0);
+  oled.println(&quot;Ultrasonoc Sensor&quot;);
+  oled.setTextSize(1);
+  oled.setCursor(0, 20);
+  oled.print(&quot;Distance (cm): &quot;);
+  oled.println(distanceCm);
+  oled.setTextSize(1);
+  oled.setCursor(0, 40);
+  oled.print(&quot;Distance (inch): &quot;);
+  
+  oled.println(distanceInch);
+  oled.display();
+     
+  delay(1000);
+  prevtime = currtime;
+    }  
+}
