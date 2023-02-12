@@ -1,0 +1,48 @@
+#include <TridentTD_LineNotify.h>
+#define SSID "AndroidAP5339"
+#define PASSWORD "bnbc1166"
+#define LINE_TOKEN "kw5209squxZEDt5QUIAEHgJlsaHa79D4noCeQ2mLTXF" //Your line token
+#include "DHTesp.h"
+
+int DHT_PIN = 15;
+DHTesp dhtSensor; 
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200); Serial.println();
+  Serial.println(LINE.getVersion());
+  WiFi.begin(SSID, PASSWORD);
+  Serial.printf("WiFi connecting to %s\n", SSID);
+  while(WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(400); }
+  Serial.printf("\nWiFi connected\nIP : ");
+  Serial.println(WiFi.localIP());
+  // กําหนด Line Token
+  LINE.setToken(LINE_TOKEN); 
+
+  dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  delay(5000);
+  // Sending Text
+  LINE.notify("**Notification - Sending funny pictures**");
+  // Sending a number
+  LINE.notify(55555); // จ ํานวนเต็ม
+  
+  TempAndHumidity data = dhtSensor.getTempAndHumidity();
+  String str = "อุณหภูมิ = " + String(data.temperature) + ", ความชื้น = " + String(data.humidity);
+  LINE.notify(str);
+
+  // Sending a picture
+  LINE.notifyPicture("Bird is naughty","https://dthezntil550i.cloudfront.net/6t/latest/6t1812010644500000006002272/d849e31d-15e5-45b2-bff4-64073246d299.png");
+  Serial.println("Bird");
+
+  LINE.notifyPicture("Cat wants to play","https://media.tenor.com/amHkJ-jiouYAAAAd/pester-bird-annoys-cat.gif");
+  Serial.println("Cat");
+
+  LINE.notifyPicture("Dog is bored","https://images.fineartamerica.com/images/artworkimages/mediumlarge/2/my-bad-cute-dog-i-am-sorry-stephanie-laird.jpg");
+  Serial.println("Dog");
+}
+
+
