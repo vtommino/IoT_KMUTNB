@@ -1,0 +1,48 @@
+#include "DHTesp.h"
+#include "WiFi.h"
+#include <HTTPClient.h>
+#include "time.h"
+
+const char* ssid="AndroidAP5339";
+const char* password="bnbc1166";
+String GOOGLE_SCRIPT_ID = "AKfycbx7ESaSYCiUDeYt6aZpRdhNy4pWRAniE3oaqraEfki_PNlRXDsSyHH8WT0RqYSEVJkNZw";
+
+int DHT_PIN = 15;
+int LED_PIN = 23;
+
+DHTesp dhtSensor; //dhtSensor = new DHTesp()
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  Serial.println("Hello, ESP32!");
+  dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
+  pinMode(LED_PIN, OUTPUT);
+
+  WiFi.begin(ssid, password);
+  while(WiFi.status() != WL_CONNECTED){
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Wifi connected!");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  delay(10000);
+  TempAndHumidity data = dhtSensor.getTempAndHumidity();
+  Serial.println("Temp: " + String(data.temperature, 2) + "°C");
+  Serial.println("Humidity: " + String(data.humidity, 1) + "%");
+  Serial.println("---");
+  digitalWrite(LED_PIN, HIGH);
+  delay(200);
+  digitalWrite(LED_PIN, LOW);
+
+  String url = "https://script.google.com/macros/s/AKfycbx7ESaSYCiUDeYt6aZpRdhNy4pWRAniE3oaqraEfki_PNlRXDsSyHH8WT0RqYSEVJkNZw/exec?temp=" + String(data.temperature, 2) + "&humi=" + String(data.humidity, 2);
+  HTTPClient http; 
+  http.begin(url.c_str());
+  http.GET();
+  Serial.println("Post data to Google Sheet");
+  http.end();
+}
