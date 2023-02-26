@@ -1,0 +1,18 @@
+/*	 การต่อสาย sensor เข้ากับบอร์ด Arduino
+ สายสีน้ำตาล - VCC 5-24V
+ สายสีน้ำเงิน - GND
+ สายสีเหลือง - A0
+*/
+
+void setup() {
+Serial.begin(9600);
+}
+ 
+void loop() {
+if (digitalRead(A0) == 1) {
+Serial.println("Water detected");
+} else {
+Serial.println("No Water");
+}
+delay(1000);
+}
