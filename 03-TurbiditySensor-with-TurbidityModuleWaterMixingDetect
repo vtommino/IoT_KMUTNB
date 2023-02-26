@@ -1,0 +1,16 @@
+// โคด Arduino อ่านค่าเข้ามาเป็น โวลต์ ดังนี้
+
+void setup() {
+ pinMode(A0,INPUT);
+ Serial.begin(9600);
+}
+ 
+void loop() {
+  int sensor = analogRead(A0);
+  float volte = sensor*(5.0/1024.0);
+  Serial.println(volte);
+  delay(500);
+} 
+
+// เอาต์พุต เริ่มต้นเป็นแบบ Analog
+ในกรณีที่ต้องการสัญญาณเอาต์พุตแบบ Digital สามารถบัดกรีตั้งค่าได้ที่จุดนี้ และปรับความไวที่ตัวต้านทานปรับค่าได้บนบอร์ด
